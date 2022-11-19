@@ -262,6 +262,10 @@ class DioCacheManager {
   /// empty local cache.
   Future<bool> clearAll() => _manager.clearAll();
 
+  Future<CacheObj?> pullFromCacheBeforeMaxAge(String key, {String? subKey}) async {
+    return _manager.pullFromCacheBeforeMaxAge(key,subKey: subKey);
+  }
+
   Uri _getUriByPath(String? baseUrl, String path,
       {dynamic data, Map<String, dynamic>? queryParameters}) {
     if (!path.startsWith(RegExp(r"https?:"))) {
