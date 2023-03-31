@@ -56,6 +56,15 @@ class DioCacheManager {
   }
 
   _onResponse(Response response, ResponseInterceptorHandler handler) async {
+    if (_manager.needPushToCache != null) {
+      bool needPushToCache = await _manager.needPushToCache!(response);
+      if (needPushToCache) {
+        var res = await _onErrorHandle(response.requestOptions, handler);
+        if (res) {
+          return;
+        }
+      }
+    }
     if ((response.requestOptions.extra[DIO_CACHE_KEY_TRY_CACHE] ?? false) ==
             true &&
         response.statusCode != null &&
@@ -67,17 +76,37 @@ class DioCacheManager {
   }
 
   _onError(DioError e, ErrorInterceptorHandler handler) async {
-    if ((e.requestOptions.extra[DIO_CACHE_KEY_TRY_CACHE] ?? false) == true) {
-      var responseDataFromCache =
-          await _pullFromCacheBeforeMaxStale(e.requestOptions);
-      if (null != responseDataFromCache) {
-        var response = _buildResponse(responseDataFromCache,
-            responseDataFromCache.statusCode, e.requestOptions);
-
-        return handler.resolve(response);
-      }
+    // if ((e.requestOptions.extra[DIO_CACHE_KEY_TRY_CACHE] ?? false) == true) {
+    //   var responseDataFromCache =
+    //       await _pullFromCacheBeforeMaxStale(e.requestOptions);
+    //   if (null != responseDataFromCache) {
+    //     var response = _buildResponse(responseDataFromCache,
+    //         responseDataFromCache.statusCode, e.requestOptions);
+    //
+    //     return handler.resolve(response);
+    //   }
+    // }
+    // return handler.next(e);
+    var res = await _onErrorHandle(e.requestOptions, handler);
+    if (res) {
+      return;
     }
     return handler.next(e);
+  }
+
+  Future<bool> _onErrorHandle(RequestOptions requestOptions, handler) async {
+    if ((requestOptions.extra[DIO_CACHE_KEY_TRY_CACHE] ?? false) == true) {
+      var responseDataFromCache =
+          await _pullFromCacheBeforeMaxStale(requestOptions);
+      if (null != responseDataFromCache) {
+        var response = _buildResponse(responseDataFromCache,
+            responseDataFromCache.statusCode, requestOptions);
+
+        handler.resolve(response);
+        return true;
+      }
+    }
+    return false;
   }
 
   Response _buildResponse(
@@ -262,8 +291,9 @@ class DioCacheManager {
   /// empty local cache.
   Future<bool> clearAll() => _manager.clearAll();
 
-  Future<CacheObj?> pullFromCacheBeforeMaxAge(String key, {String? subKey}) async {
-    return _manager.pullFromCacheBeforeMaxAge(key,subKey: subKey);
+  Future<CacheObj?> pullFromCacheBeforeMaxAge(String key,
+      {String? subKey}) async {
+    return _manager.pullFromCacheBeforeMaxAge(key, subKey: subKey);
   }
 
   Uri _getUriByPath(String? baseUrl, String path,

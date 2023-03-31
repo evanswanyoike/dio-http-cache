@@ -1,7 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:dio_http_cache/src/store/store_impl.dart';
+import 'package:flutter/material.dart';
 
 typedef Future<List<int>> Encrypt(List<int> str);
 typedef Future<List<int>> Decrypt(List<int> str);
+typedef Future<bool> NeedPushToCache(Response response);
 
 class CacheConfig {
   final Duration defaultMaxAge;
@@ -20,6 +23,8 @@ class CacheConfig {
   final Decrypt? decrypt;
   final ICacheStore? diskStore;
 
+  final NeedPushToCache? needPushToCache;
+
   CacheConfig(
       {this.defaultMaxAge = const Duration(days: 7),
       this.defaultMaxStale,
@@ -32,5 +37,6 @@ class CacheConfig {
       this.maxMemoryCacheCount = 100,
       this.encrypt,
       this.decrypt,
-      this.diskStore});
+      this.diskStore,
+      this.needPushToCache});
 }

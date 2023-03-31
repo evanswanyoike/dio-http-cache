@@ -13,6 +13,7 @@ class CacheManager {
   ICacheStore? _diskCacheStore;
   ICacheStore? _memoryCacheStore;
   late Utf8Encoder _utf8encoder;
+  NeedPushToCache? needPushToCache;
 
   CacheManager(this._config) {
     _utf8encoder = const Utf8Encoder();
@@ -22,6 +23,7 @@ class CacheManager {
               _config.encrypt, _config.decrypt);
     if (!_config.skipMemoryCache)
       _memoryCacheStore = MemoryCacheStore(_config.maxMemoryCacheCount);
+    needPushToCache = _config.needPushToCache;
   }
 
   Future<CacheObj?> _pullFromCache(String key, {String? subKey}) async {
