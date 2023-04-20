@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:dio_http_cache/src/store/store_impl.dart';
-import 'package:flutter/material.dart';
 
 typedef Future<List<int>> Encrypt(List<int> str);
 typedef Future<List<int>> Decrypt(List<int> str);
+typedef Future<bool> TryUseCache(Response response);
 typedef Future<bool> NeedPushToCache(Response response);
 
 class CacheConfig {
@@ -23,6 +23,7 @@ class CacheConfig {
   final Decrypt? decrypt;
   final ICacheStore? diskStore;
 
+  final TryUseCache? tryUseCache;
   final NeedPushToCache? needPushToCache;
 
   CacheConfig(
@@ -38,5 +39,6 @@ class CacheConfig {
       this.encrypt,
       this.decrypt,
       this.diskStore,
-      this.needPushToCache});
+      this.needPushToCache,
+      this.tryUseCache});
 }

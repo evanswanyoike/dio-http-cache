@@ -56,20 +56,26 @@ class DioCacheManager {
   }
 
   _onResponse(Response response, ResponseInterceptorHandler handler) async {
-    if (_manager.needPushToCache != null) {
-      bool needPushToCache = await _manager.needPushToCache!(response);
-      if (needPushToCache) {
-        var res = await _onErrorHandle(response.requestOptions, handler);
-        if (res) {
+    if (_manager.tryUseCache != null) {
+      bool tryUseCache = await _manager.tryUseCache!(response);
+      if (tryUseCache) {
+        var useCacheResponse =
+            await _onErrorHandle(response.requestOptions, handler);
+        if (useCacheResponse) {
           return;
         }
       }
+    }
+    bool needPushToCache = true;
+    if (_manager.needPushToCache != null) {
+      needPushToCache = await _manager.needPushToCache!(response);
     }
     if ((response.requestOptions.extra[DIO_CACHE_KEY_TRY_CACHE] ?? false) ==
             true &&
         response.statusCode != null &&
         response.statusCode! >= 200 &&
-        response.statusCode! < 300) {
+        response.statusCode! < 300 &&
+        needPushToCache) {
       await _pushToCache(response);
     }
     return handler.next(response);

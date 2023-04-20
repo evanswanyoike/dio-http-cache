@@ -13,6 +13,7 @@ class CacheManager {
   ICacheStore? _diskCacheStore;
   ICacheStore? _memoryCacheStore;
   late Utf8Encoder _utf8encoder;
+  TryUseCache? tryUseCache;
   NeedPushToCache? needPushToCache;
 
   CacheManager(this._config) {
@@ -23,6 +24,7 @@ class CacheManager {
               _config.encrypt, _config.decrypt);
     if (!_config.skipMemoryCache)
       _memoryCacheStore = MemoryCacheStore(_config.maxMemoryCacheCount);
+    tryUseCache = _config.tryUseCache;
     needPushToCache = _config.needPushToCache;
   }
 
