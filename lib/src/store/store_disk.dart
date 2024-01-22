@@ -4,6 +4,7 @@ import 'package:dio_http_cache_fix/src/core/config.dart';
 import 'package:dio_http_cache_fix/src/core/obj.dart';
 import 'package:dio_http_cache_fix/src/store/store_impl.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 
 class DiskCacheStore extends ICacheStore {
@@ -27,7 +28,9 @@ class DiskCacheStore extends ICacheStore {
     if (null == _db) {
       var path = _databasePath;
       if (null == path || path.length <= 0) {
-        path = await getDatabasesPath();
+        // path = await getDatabasesPath();
+        Directory appDocDir = await getApplicationSupportDirectory();
+        path = appDocDir.path;
       }
       await Directory(path).create(recursive: true);
       path = join(path, "$_databaseName.db");
